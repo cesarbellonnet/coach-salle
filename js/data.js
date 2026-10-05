@@ -57,6 +57,8 @@ x:'<path d="M6 6l12 12M18 6L6 18"/>',
 check:'<path d="M5 12l5 5 9-10"/>',
 up:'<path d="M4 17l6-6 4 4 6-7M15 8h5v5"/>',
 chev:'<path d="M9 6l6 6-6 6"/>',
+chevl:'<path d="M15 6l-6 6 6 6"/>',
+barcode:'<path d="M4 6v12M7.5 6v12M11 6v8M14 6v12M17 6v8M20 6v12"/>',
 dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
 week:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h2M11 14h2M15 14h2M7 17h2"/>',
 star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/>',
@@ -108,7 +110,9 @@ function syncEx(){for(const id of UEX){delete EXM[id];const i=EX.findIndex(x=>x.
 for(const x of Array.isArray(S.myEx)?S.myEx:[]){if(!x||!/^[\w-]+$/.test(x.id||'')||EXM[x.id])continue;const eq=EQ[x.eq]?x.eq:'machine';const e={id:x.id,n:cleanTx(x.n)||'Exercice',g:GN[x.g]?x.g:'pecs',eq,m:cleanTx(x.m)||EQN[eq],c:(Array.isArray(x.c)?x.c:[]).map(cleanTx).filter(Boolean),v:[],u:1,off:!!x.off};EXM[e.id]=e;UEX.push(e.id);if(!e.off)EX.push(e)}}
 syncEx();
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast("Impossible d'enregistrer sur cet appareil")}}
-S.plans=S.plans.filter(p=>p.date>=dk());
+// Une séance prévue mais pas faite reste 7 jours, le temps de la reporter
+S.plans=S.plans.filter(p=>p.date>=addDays(dk(),-7));
+function missedPlans(){const lim=addDays(dk(),-7);return S.plans.filter(p=>p.date<dk()&&p.date>=lim&&!S.sessions.some(s=>s.done&&s.date===p.date)).sort((a,b)=>a.date<b.date?-1:1)}
 // Migration v1 -> v2 : nouveaux objectifs prise de masse
 if((S.v||1)<2){const P=S.profile;if(P.kcal===2800&&P.prot===140){P.kcal=3000;P.prot=150;P.carb=420;P.fat=80}if(P.cm===183)P.cm=182;S.v=2;try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 function weekStart(d=dk()){const x=parseDk(d);const wd=(x.getDay()+6)%7;x.setDate(x.getDate()-wd);return dk(x)}
@@ -125,9 +129,15 @@ const activeSession=()=>S.sessions.find(s=>!s.done);
 function lastTrained(g,asOf=dk()){let best=null;for(const s of S.sessions){if(s.date>asOf)continue;if(s.exercises.some(e=>exG(e.exId)===g&&e.sets.length)){if(!best||s.date>best)best=s.date}}return best}
 function daysSince(g,asOf=dk()){const l=lastTrained(g,asOf);return l==null?null:diffDays(l,asOf)}
 function suggestGroups(asOf=dk()){let pick='pecs',pv=-1;for(const[g]of GROUPS){if(g==='abdos'||g==='bras')continue;const d=daysSince(g,asOf);const v=d==null?999:d;if(v>pv){pv=v;pick=g}}return PAIR[pick].slice()}
-function exHistory(id){return S.sessions.filter(s=>s.done).map(s=>{const e=s.exercises.find(x=>x.exId===id);if(!e||!e.sets.length)return null;return{date:s.date,max:Math.max(...e.sets.map(x=>+x.kg||0)),sets:e.sets}}).filter(Boolean).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)}
+function exHistory(id){return S.sessions.filter(s=>s.done).map(s=>{const e=s.exercises.find(x=>x.exId===id);if(!e||!e.sets.length)return null;const max=Math.max(...e.sets.map(x=>+x.kg||0));return{date:s.date,max,best:Math.max(...e.sets.filter(x=>(+x.kg||0)>=max).map(x=>+x.reps||0)),sets:e.sets}}).filter(Boolean).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)}
 function lastPerf(id){const h=exHistory(id);return h.length?h[h.length-1]:null}
-function stagnating(id){const h=exHistory(id).slice(-3);return h.length===3&&h[0].max>0&&h[0].max===h[1].max&&h[1].max===h[2].max}
+// Sans charge (tractions, pompes, gainage…) la progression se lit en répétitions ou en secondes, pas en kg
+const exUnit=id=>id==='gainage'?'s':'reps';
+const allBW=h=>h.length>0&&h.every(x=>x.max===0);
+const fmtPerf=(id,h,rp=h.max===0)=>rp?h.best+' '+exUnit(id):fmtKg(h.max)+' kg';
+function exRecord(id){const h=exHistory(id);if(!h.length)return null;const rp=allBW(h);return{rp,best:Math.max(...h.map(x=>rp?x.best:x.max))}}
+const fmtRecord=(id,r)=>r.rp?r.best+' '+exUnit(id):fmtKg(r.best)+' kg';
+function stagnating(id){const h=exHistory(id).slice(-3);if(h.length<3)return false;const rp=allBW(h),v=h.map(x=>rp?x.best:x.max);return v[0]>0&&v[0]===v[1]&&v[1]===v[2]}
 const vol=s=>s.exercises.reduce((t,e)=>t+e.sets.reduce((u,x)=>u+(+x.reps||0)*(+x.kg||0),0),0);
 function nextPlan(){return S.plans.filter(p=>p.date>=dk()).sort((a,b)=>(a.date+a.time)<(b.date+b.time)?-1:1)[0]}
 function bedtimes(wake=S.profile.wake){const[w,m]=String(wake||'07:00').split(':').map(Number);const wm=w*60+m;return[5,6].map(c=>{let x=wm-c*90-15;x=((x%1440)+1440)%1440;return pad(Math.floor(x/60))+':'+pad(x%60)})}

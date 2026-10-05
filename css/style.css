@@ -50,9 +50,6 @@ button.row{cursor:pointer}
 .exhead strong{display:block}.exhead small{color:var(--mute);font-size:12px}
 .pict{flex:none;width:46px;height:46px;border-radius:10px;background:var(--card2);display:grid;place-items:center;color:#B4B2A9}
 .pict.sm{width:38px;height:38px}.pict.lg{width:100%;height:120px;border-radius:14px;margin-bottom:12px}
-.sets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.set{flex:1 1 28%;min-width:86px;border-radius:10px;padding:9px 4px;font:600 14px 'Barlow',sans-serif;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
-.set.done{background:var(--bg);color:var(--prot);border:0}.set.add{background:none;border:1px dashed #5F5E5A;color:var(--mute)}
 .up{color:var(--prot);font-size:13px;margin-top:8px;display:flex;align-items:center;gap:4px}.mute{color:var(--mute);font-size:13px;margin-top:8px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
 .chip{border:1px solid var(--line);background:none;color:var(--txt);border-radius:999px;padding:8px 14px;font:500 15px 'Barlow',sans-serif;cursor:pointer}
@@ -78,6 +75,8 @@ select{margin:0;padding:8px 12px;min-height:40px;font-size:15px;width:auto;max-w
 .bed{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}.bed div{background:var(--card);border-radius:12px;padding:10px;text-align:center}
 .bed strong{display:block;font:600 26px 'Barlow Condensed','Arial Narrow',sans-serif;color:var(--sleep)}.bed small{color:var(--mute)}
 .chart{width:100%;height:64px;display:block;margin-top:6px}
+.chartw{display:flex;gap:8px;align-items:stretch;margin-top:6px}.chartw .chart{flex:1;min-width:0;margin:0}
+.cscale{display:flex;flex-direction:column;justify-content:space-between;color:#6b6a65;font-size:11px;text-align:right;padding:1px 0;white-space:nowrap}
 .axis{display:flex;justify-content:space-between;color:#6b6a65;font-size:11px}
 .big{font:600 30px/1.1 'Barlow Condensed','Arial Narrow',sans-serif}
 .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -132,6 +131,14 @@ section{margin-top:6px}
 .prog.rec{border:1px solid var(--acc)}
 .plist{list-style:none;padding:0;margin:6px 0 0}.plist li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--card2)}
 .plink{background:none;border:0;color:var(--txt);font:500 15px 'Barlow',sans-serif;padding:9px 0;text-align:left;cursor:pointer}.rx{color:var(--mute);white-space:nowrap;font-size:14px}
+.daynav{display:flex;align-items:center;gap:2px;margin:-6px 0 0 -9px}
+.iconbtn:disabled{opacity:.25}
+.rowbtn{background:none;border:0;color:inherit;font:inherit;text-align:left;padding:0;cursor:pointer}
+button.wd{border:0;font:inherit;color:inherit;cursor:pointer;width:100%}
+.prog.miss{border:1px solid #8a3a38}
+.cam{position:relative;aspect-ratio:4/3;background:#000;border-radius:14px;overflow:hidden;margin-bottom:8px}
+.cam video{width:100%;height:100%;object-fit:cover;display:block}
+.cam i{position:absolute;left:8%;right:8%;top:50%;height:2px;background:var(--acc);box-shadow:0 0 8px var(--acc)}
 #rest{position:fixed;left:0;right:0;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:6;padding:0 10px;pointer-events:none}
 #rest[hidden]{display:none}
 .restin{max-width:440px;margin:0 auto;background:#1b1b1a;border:1px solid var(--acc);border-radius:16px;padding:8px 10px;display:flex;align-items:center;gap:8px;position:relative;overflow:hidden;pointer-events:auto;box-shadow:0 6px 20px rgba(0,0,0,.5)}

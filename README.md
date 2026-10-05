@@ -11,15 +11,17 @@ coach-salle/
 ├── css/style.css          Tout le style (thème sombre)
 ├── js/data.js             Données, exercices, séances A/B/C, calculs
 ├── js/ai.js               Accès à Claude (compte claude.ai ou clé API)
-├── js/today.js            Onglet Aujourd'hui, scan, sommeil, planification
+├── js/today.js            Onglet Aujourd'hui, scan photo, historique des repas, sommeil, planification
+├── js/barcode.js          Scan par code-barres (Open Food Facts)
+├── js/vendor/             Bibliothèque de lecture de code-barres (Quagga), chargée au premier scan
 ├── js/gym.js              Onglets Planifier, Salle, Progrès, réglages, navigation
 ├── manifest.webmanifest   Installation sur l'écran d'accueil
-├── sw.js                  Mode hors ligne
+├── sw.js                  Mode hors ligne et mise à jour automatique
 └── icons/                 Icônes de l'app
 ```
 
 Les fichiers JS sont chargés dans cet ordre et partagent leurs variables :
-`data.js` → `ai.js` → `today.js` → `gym.js`.
+`data.js` → `ai.js` → `today.js` → `barcode.js` → `gym.js`.
 
 ---
 
@@ -49,7 +51,7 @@ Astuce : dans Chrome, fais F12, puis l'icône téléphone, pour voir l'app au fo
    - Source : **Deploy from a branch**
    - Branch : **main**, dossier **/ (root)**, puis **Save**.
 5. Attends 1 à 2 minutes. Ton app est en ligne à l'adresse :
-   `https://TON-PSEUDO.github.io/coach-salle/`
+   `https://cesarbellonnet.github.io/coach-salle/`
 
 ---
 
@@ -84,24 +86,32 @@ Sécurité :
    Le fichier arrive dans l'app **Fichiers** de l'iPhone.
 2. Dans la nouvelle version : réglages > **Restaurer une sauvegarde** > choisis le fichier.
 
-Les photos du mois ne sont pas incluses dans la sauvegarde. Reprends-les dans la nouvelle version.
+Les sauvegardes faites avec cette version contiennent aussi les photos du mois.
+Celles de l'ancienne version claude.ai ne les contiennent pas : reprends-les dans la nouvelle version.
 
 ---
 
 ## 6. Mettre à jour l'app
 
 1. Modifie le code dans VS Code et teste avec Live Server.
-2. Dans `sw.js`, change la version, par exemple `coach-salle-v1` → `coach-salle-v2`.
-   Sans ça, l'iPhone garde l'ancienne version en cache.
-3. Renvoie les fichiers modifiés sur GitHub.
-4. Sur l'iPhone : ferme complètement l'app puis rouvre-la, deux fois si besoin.
+2. Onglet **Source Control** : écris un message, **Commit**, puis **Sync Changes**.
+3. Attends 1 à 2 minutes que GitHub publie.
+4. Ouvre l'app sur l'iPhone : elle télécharge la nouvelle version en arrière-plan, se recharge toute seule
+   et affiche « App mise à jour ». Si elle était restée ouverte, elle vérifie quand tu y reviens.
 
+Plus besoin de changer la version dans `sw.js` : le service worker compare les fichiers lui-même.
 ---
 
-## Ce qui marche maintenant (et pas sur claude.ai)
+## Ce que fait l'app
 
-- **Lecture des photos** d'étiquettes et de plats, avec ta clé API.
-- **Agenda iPhone** : le bouton « Ajouter à l'agenda de l'iPhone » ouvre un fichier .ics, que l'iPhone ajoute à Calendrier.
-- **Mode hors ligne** et **icône sur l'écran d'accueil**.
-
+- **Repas** : photo d'une étiquette ou d'un plat (clé API), **scan du code-barres** (gratuit, sans clé),
+  saisie à la main, favoris. Historique : flèches ou bande des 7 derniers jours pour voir un jour passé,
+  y ajouter un oubli, ou toucher un repas pour le modifier.
+- **Séances** : planification, séances A/B/C, **minuteur de repos** après chaque série validée,
+  **exercices personnalisés** (Réglages > Mes exercices). Une séance prévue mais ratée peut être reportée,
+  et une séance laissée ouverte se termine à ta dernière série.
+- **Progrès** : poids, charges, records. Les exercices au poids du corps sont suivis en répétitions.
+- **Agenda iPhone** : le bouton « Ajouter à l'agenda de l'iPhone » ouvre un fichier .ics.
+- **Sauvegarde** : un fichier qui contient tout, photos comprises. Sur iPhone, choisis « Enregistrer dans Fichiers ».
+- **Mode hors ligne**, **icône sur l'écran d'accueil**, **mise à jour automatique**.
 Limite qui reste : c'est une web app. Pas d'accès à l'app Santé (pas, fréquence cardiaque, sommeil).
