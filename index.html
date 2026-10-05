@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#131313">
+<title>Coach Salle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+
+</head>
+<body>
+<main>
+<div id="v-today"></div>
+<div id="v-plan" hidden></div>
+<div id="v-gym" hidden></div>
+<div id="v-prog" hidden></div>
+</main>
+<nav class="tabs" aria-label="Navigation">
+<button data-tab="today"></button><button data-tab="plan"></button><button data-tab="gym"></button><button data-tab="prog"></button>
+</nav>
+<div id="rest" hidden><div class="restin" role="timer" aria-label="Minuteur de repos"><i id="restBar"></i><div><small id="restLab">Repos</small><strong id="restT">0:00</strong></div><button class="rbtn" data-act="restadj" data-d="-15" aria-label="15 secondes de moins">−15 s</button><button class="rbtn" data-act="restadj" data-d="15" aria-label="15 secondes de plus">+15 s</button><button class="rbtn go" id="restGo" data-act="restskip">Passer</button></div></div>
+<div id="sheet" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input id="scanInput" class="hid" type="file" accept="image/*" capture="environment" tabindex="-1">
+<input id="photoInput" class="hid" type="file" accept="image/*" tabindex="-1">
+<input id="importInput" class="hid" type="file" accept=".json,application/json" tabindex="-1">
+<script src="js/data.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/today.js"></script>
+<script src="js/gym.js"></script>
+</body>
+</html>
