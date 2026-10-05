@@ -172,15 +172,17 @@ function gcalUrl(p){const[a,b]=evTimes(p);let tz='Europe/Paris';try{tz=Intl.Date
 const icsEsc=s=>String(s).replace(/([,;\\])/g,'\\$1');
 function icsText(p){const[a,b]=evTimes(p);return['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Coach Salle//FR','BEGIN:VEVENT','UID:'+p.id+'@coach-salle','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART:'+a,'DTEND:'+b,'SUMMARY:Salle : '+groupsLabel(p.groups),'DESCRIPTION:'+(p.exercises||[]).map(e=>icsEsc(EXM[e.exId].n+' '+e.rx)).join('\\n'),'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:Séance dans 30 minutes','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n')}
 function calHTML(p){return framed?`<a class="btn primary full" target="_blank" rel="noopener" href="${gcalUrl(p)}">${ic('calendar')} Ajouter à Google Agenda</a>`:`<button class="btn primary full" data-act="ics" data-id="${p.id}">${ic('calendar')} Ajouter à l’agenda de l’iPhone</button>`}
-// Ajout à l'agenda. Sur iPhone, une app installée sur l'écran d'accueil ne gère pas bien les téléchargements :
-// on essaie d'abord d'ouvrir le fichier d'agenda directement (l'iPhone propose « Ajouter au calendrier »).
-// Si rien ne se passe, l'utilisateur peut essayer une autre méthode ; celle qui a servi en dernier est retenue.
-const CALM=['data','share','file'];
-function calDo(p,mode){const txt=icsText(p),blob=new Blob([txt],{type:'text/calendar'});
-if(mode==='share'){try{const f=new File([blob],'seance.ics',{type:'text/calendar'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(()=>{});return}}catch(e){}mode='file'}
-if(mode==='data'){window.open('data:text/calendar;charset=utf-8,'+encodeURIComponent(txt),'_blank');return}
-dlBlob(blob,'seance.ics')}
-function calSheet(p,mode){const k=CALM.indexOf(mode);sheet(`<h2>Ajout à l’agenda</h2><p>${mode==='share'?'Dans la feuille de partage, choisis Calendrier s’il est proposé, sinon « Enregistrer dans Fichiers » puis ouvre le fichier.':'L’iPhone doit te proposer d’ajouter la séance à Calendrier, avec un rappel 30 minutes avant.'}</p><p class="note">${groupsLabel(p.groups)}, ${fmtDay(p.date)} à ${p.time}. Méthode ${k+1} sur ${CALM.length}.</p><button class="btn primary full" data-act="close">C’est ajouté</button><button class="btn ghost full" data-act="icsalt" data-id="${p.id}">Rien ne s’est passé : essayer autrement</button>`)}
-ACT.ics=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(!p)return;if(!IOS){dlBlob(new Blob([icsText(p)],{type:'text/calendar'}),'seance.ics');return}
-const mode=CALM.includes(S.profile.calMode)?S.profile.calMode:'data';calDo(p,mode);calSheet(p,mode)};
-ACT.icsalt=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(!p)return;const cur=CALM.includes(S.profile.calMode)?S.profile.calMode:'data';const mode=CALM[(CALM.indexOf(cur)+1)%CALM.length];S.profile.calMode=mode;save();calDo(p,mode);calSheet(p,mode)};
+// Ajout à l'agenda. Sur iPhone, une app installée sur l'écran d'accueil ne doit jamais quitter sa page
+// (ouvrir le fichier d'agenda comme une adresse donne un écran blanc sans retour). On affiche donc d'abord
+// une feuille avec les différentes façons de faire, et rien ne se lance sans que l'utilisateur ait choisi.
+function calFile(p){return new Blob([icsText(p)],{type:'text/calendar'})}
+ACT.ics=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(!p)return;if(!IOS){dlBlob(calFile(p),'seance.ics');return}
+sheet(`<h2>Ajouter à l’agenda</h2><p>${groupsLabel(p.groups)}, ${fmtDay(p.date)} à ${p.time}, avec un rappel 30 minutes avant.</p>
+<button class="btn primary full" data-act="icsfile" data-id="${p.id}">${ic('calendar')} Ouvrir dans Calendrier</button>
+<button class="btn ghost full" data-act="icsshare" data-id="${p.id}">Partager le fichier</button>
+<p class="note">Avec « Partager » : choisis « Enregistrer dans Fichiers », puis ouvre le fichier pour l’ajouter à Calendrier.</p>
+<a class="btn ghost full" target="_blank" rel="noopener" href="${gcalUrl(p)}">Ajouter à Google Agenda</a>
+<p class="note">Si ton iPhone affiche ton compte Google dans Calendrier, la séance y apparaîtra aussi.</p>`)};
+ACT.icsfile=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(p)dlBlob(calFile(p),'seance.ics')};
+ACT.icsshare=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(!p)return;let f=null;try{f=new File([calFile(p)],'seance.ics',{type:'text/calendar'})}catch(e){}
+if(f&&navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});else toast('Partage indisponible sur cet appareil')};
