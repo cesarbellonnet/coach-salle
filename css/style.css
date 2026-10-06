@@ -41,7 +41,7 @@ button.row{cursor:pointer}
 .iconbtn{flex:none;background:var(--card);border:0;color:var(--mute);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
 .iconbtn.sm{width:34px;height:34px;background:none}
 .empty{color:var(--mute);font-size:14px;margin:6px 0}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
 .tile{background:var(--card);border-radius:12px;padding:8px;text-align:center;border:1px solid transparent}
 .tile small{display:block;color:var(--mute);font-size:12px}.tile strong{font:600 19px 'Barlow Condensed','Arial Narrow',sans-serif}
 .tile.ok strong{color:var(--prot)}.tile.mid strong{color:var(--acc)}.tile.late{border-color:#8a3a38}.tile.late strong{color:var(--bad)}
@@ -160,3 +160,11 @@ body.resting main{padding-bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 body.resting #toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 .form select{display:block;width:100%;margin-top:4px;min-height:48px;padding:12px;font-size:17px}
 @media (prefers-reduced-motion:reduce){.exph>img.b{animation:none;opacity:0}.restin>i{transition:none}.sheet-in,.thinking{animation:none}#toast{transition:none}}
+.nwk{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.nwk .c{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.nwk .b{width:100%;max-width:26px;border-radius:5px 5px 0 0;min-height:2px}.nwk .b.lo{opacity:.4}
+.nwk .v{font-size:10px;line-height:1;color:var(--mute);margin-bottom:3px;font-variant-numeric:tabular-nums}
+.nwk .goal{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--mute);pointer-events:none}
+.ndays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:11px;color:var(--mute);margin-top:4px}
+.nd{font:500 13px 'Barlow',sans-serif;color:var(--mute)}
+.nsec+.nsec{margin-top:6px;border-top:1px solid var(--card2);padding-top:2px}

@@ -135,7 +135,7 @@ f.addEventListener('submit',e=>{e.preventDefault();const h=num(F.h.value);if(h>0
 // Planification
 function planWarn(d,groups,selfId){for(const g of groups){if(g==='abdos')continue;const l=lastTrained(g,d);if(l&&diffDays(l,d)<=1)return `${GN[g]} travaillés il y a moins de 48 h : décale d’un jour ou change de muscle.`;const near=S.plans.find(p=>p.date>=dk()&&p.id!==selfId&&p.groups.includes(g)&&Math.abs(diffDays(p.date,d))<=1);if(near)return `${GN[g]} déjà prévus ${fmtDay(near.date)} : laisse 48 h entre deux séances du même muscle.`}return ''}
 function upcomingList(){const ps=S.plans.filter(p=>p.date>=dk()).sort((a,b)=>(a.date+a.time)<(b.date+b.time)?-1:1);if(!ps.length)return '';return `<p class="lab">Déjà planifiées</p>`+ps.map(p=>`<div class="row"><div class="grow"><strong>${p.style?STYLES[p.style].n+' : ':''}${groupsLabel(p.groups)}</strong><small>${fmtDay(p.date)} à ${p.time}${p.exercises&&p.exercises.length?', '+p.exercises.length+' exercices':''}</small></div><button class="link" data-act="editplan" data-id="${p.id}">Modifier</button><button class="link" style="color:var(--bad);margin-left:10px" data-act="delplan" data-id="${p.id}">Annuler</button></div>`).join('')}
-const PRIO=['pecs','dos','epaules','jambes','bras','abdos'];
+const PRIO=['pecs','dos','epaules','jambes','biceps','triceps','abdos'];
 const progList=(g,st)=>g.length&&st?getProgram(g,st).map(e=>({exId:e.exId,rx:e.rx})):[];
 let PD=null;
 let PDdone=null;
@@ -147,7 +147,7 @@ return `<header class="top"><h1>${P.id?'Modifier la séance':'Nouvelle séance'}
 <div class="form grid2"><label>Jour<input id="pdD" type="date" value="${P.date}" min="${dk()}"></label><label>Heure<input id="pdT" type="time" value="${P.time}"></label></div>
 <p class="lab" style="margin-top:4px">Muscles</p><div class="chips">${GROUPS.map(([g,n])=>`<button type="button" class="chip ${P.groups.includes(g)?'on':''}" data-act="pdg" data-g="${g}" aria-pressed="${P.groups.includes(g)}">${n}</button>`).join('')}</div>
 ${w?`<p class="note warn">${w}</p>`:''}
-${P.groups.length?`<p class="lab">Séance</p><div class="chips">${['A','B','C'].map(st=>`<button type="button" class="chip ${P.style===st?'on':''}" data-act="pds" data-st="${st}" aria-pressed="${P.style===st}">${STYLES[st].n}</button>`).join('')}</div><p class="note">${P.style?STYLES[P.style].d:''}${rec?' Le coach conseille la '+STYLES[rec].n.toLowerCase()+'.':''}</p>
+${P.groups.length?`<p class="lab">Séance</p><div class="chips">${['A','B','C'].map(st=>`<button type="button" class="chip ${P.style===st?'on':''}" data-act="pds" data-st="${st}" aria-pressed="${P.style===st}">${STYLES[st].n}</button>`).join('')}</div><p class="note">${P.style?STYLES[P.style].d:''}${rec?' Le coach conseille la '+STYLES[rec].n.replace('Séance','séance')+'.':''}</p>
 <p class="lab">Exercices prévus</p>${P.exercises.map((e,i)=>`<div class="row"><div class="grow"><strong>${EXM[e.exId].n}</strong><small>${esc(e.rx)}</small></div><button class="link" data-act="pdrep" data-i="${i}">Changer</button><button class="iconbtn sm" data-act="pddel" data-i="${i}" aria-label="Retirer ${EXM[e.exId].n}">${ic('x',16)}</button></div>`).join('')||'<p class="empty">Aucun exercice pour l’instant.</p>'}<button class="link" data-act="pdadd">+ Ajouter un exercice</button>`:''}
 <button class="btn primary full" data-act="pdsave" style="margin-top:18px">${P.id?'Enregistrer les changements':'Planifier cette séance'}</button>`}
 function bindPlanEditor(){const P=PD;const d=$('#pdD'),t=$('#pdT');if(d)d.addEventListener('change',e=>{P.date=e.target.value;if(!P.gT&&P.date){P.groups=suggestGroups(P.date);P.style=recommendedStyle(P.groups);P.exercises=progList(P.groups,P.style)}render()});if(t)t.addEventListener('change',e=>{P.time=e.target.value})}
@@ -175,17 +175,5 @@ function gcalUrl(p){const[a,b]=evTimes(p);let tz='Europe/Paris';try{tz=Intl.Date
 const icsEsc=s=>String(s).replace(/([,;\\])/g,'\\$1');
 function icsText(p){const[a,b]=evTimes(p);return['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Coach Salle//FR','BEGIN:VEVENT','UID:'+p.id+'@coach-salle','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART:'+a,'DTEND:'+b,'SUMMARY:Salle : '+groupsLabel(p.groups),'DESCRIPTION:'+(p.exercises||[]).map(e=>icsEsc(EXM[e.exId].n+' '+e.rx)).join('\\n'),'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:Séance dans 30 minutes','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n')}
 function calHTML(p){return framed?`<a class="btn primary full" target="_blank" rel="noopener" href="${gcalUrl(p)}">${ic('calendar')} Ajouter à Google Agenda</a>`:`<button class="btn primary full" data-act="ics" data-id="${p.id}">${ic('calendar')} Ajouter à l’agenda de l’iPhone</button>`}
-// Ajout à l'agenda. Sur iPhone, une app installée sur l'écran d'accueil ne doit jamais quitter sa page
-// (ouvrir le fichier d'agenda comme une adresse donne un écran blanc sans retour). On affiche donc d'abord
-// une feuille avec les différentes façons de faire, et rien ne se lance sans que l'utilisateur ait choisi.
-function calFile(p){return new Blob([icsText(p)],{type:'text/calendar'})}
-ACT.ics=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(!p)return;if(!IOS){dlBlob(calFile(p),'seance.ics');return}
-sheet(`<h2>Ajouter à l’agenda</h2><p>${groupsLabel(p.groups)}, ${fmtDay(p.date)} à ${p.time}, avec un rappel 30 minutes avant.</p>
-<button class="btn primary full" data-act="icsfile" data-id="${p.id}">${ic('calendar')} Ouvrir dans Calendrier</button>
-<button class="btn ghost full" data-act="icsshare" data-id="${p.id}">Partager le fichier</button>
-<p class="note">Avec « Partager » : choisis « Enregistrer dans Fichiers », puis ouvre le fichier pour l’ajouter à Calendrier.</p>
-<a class="btn ghost full" target="_blank" rel="noopener" href="${gcalUrl(p)}">Ajouter à Google Agenda</a>
-<p class="note">Si ton iPhone affiche ton compte Google dans Calendrier, la séance y apparaîtra aussi.</p>`)};
-ACT.icsfile=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(p)dlBlob(calFile(p),'seance.ics')};
-ACT.icsshare=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(!p)return;let f=null;try{f=new File([calFile(p)],'seance.ics',{type:'text/calendar'})}catch(e){}
-if(f&&navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(()=>{});else toast('Partage indisponible sur cet appareil')};
+// Ajout à l'agenda : le fichier .ics s'ouvre dans Calendrier (l'iPhone propose « Ajouter »), avec un rappel 30 minutes avant la séance.
+ACT.ics=el=>{const p=S.plans.find(x=>x.id===el.dataset.id);if(p)dlBlob(new Blob([icsText(p)],{type:'text/calendar'}),'seance.ics')};

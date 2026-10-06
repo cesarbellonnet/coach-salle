@@ -111,8 +111,10 @@ Plus besoin de changer la version dans `sw.js` : le service worker compare les f
 - **Séances** : planification, séances A/B/C, **minuteur de repos** après chaque série validée,
   **exercices personnalisés** (Réglages > Mes exercices). Une séance prévue mais ratée peut être reportée,
   et une séance laissée ouverte se termine à ta dernière série.
-- **Progrès** : poids, charges, records. Les exercices au poids du corps sont suivis en répétitions.
-- **Agenda iPhone** : le bouton « Ajouter à l'agenda de l'iPhone » ouvre un fichier .ics.
+- **Progrès** : poids, charges, records, et **bilan nutrition de la semaine** (moyenne de calories et de protéines
+  sur 7 jours, comparée à la semaine d'avant). Les exercices au poids du corps sont suivis en répétitions.
+- **Muscles** : pecs, dos, épaules, biceps, triceps, jambes, abdos.
+- **Agenda iPhone** : le bouton « Ajouter à l'agenda de l'iPhone » ouvre la séance dans Calendrier, avec un rappel 30 minutes avant.
 - **Sauvegarde** : un fichier qui contient tout, photos comprises. Sur iPhone, choisis « Enregistrer dans Fichiers ».
 - **Mode hors ligne**, **icône sur l'écran d'accueil**, **mise à jour automatique**.
 Limite qui reste : c'est une web app. Pas d'accès à l'app Santé (pas, fréquence cardiaque, sommeil).
