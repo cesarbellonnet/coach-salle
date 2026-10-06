@@ -17,7 +17,8 @@ coach-salle/
 ├── js/gym.js              Onglets Planifier, Salle, Progrès, réglages, navigation
 ├── manifest.webmanifest   Installation sur l'écran d'accueil
 ├── sw.js                  Mode hors ligne et mise à jour automatique
-└── icons/                 Icônes de l'app
+├── icons/                 Icônes de l'app
+└── img/ex/                Photos des exercices (free-exercise-db, domaine public)
 ```
 
 Les fichiers JS sont chargés dans cet ordre et partagent leurs variables :

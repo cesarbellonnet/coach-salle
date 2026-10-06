@@ -74,6 +74,20 @@ corps:'<circle cx="32" cy="12" r="5"/><path d="M32 17v20M20 26h24M32 37l-8 17M32
 };
 function pict(eq,s=30){return `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${EQ[eq]||EQ.machine}</svg>`}
 
+// Photos des exercices (img/ex) : vignette t_<id>.jpg, position de départ <id>_0.jpg et d'arrivée <id>_1.jpg.
+// Si la photo ne charge pas (hors ligne), le pictogramme en dessous reste visible. Les exercices créés par l'utilisateur gardent le pictogramme.
+function exPic(x,s=30){return pict(x.eq,s)+(x.u?'':`<img src="img/ex/t_${x.id}.jpg" alt="" loading="lazy" onerror="this.remove()">`)}
+function exPhoto(x){const p=`<div class="pict lg">${pict(x.eq,64)}</div>`;return x.u?p:`<div class="exph">${p}<img src="img/ex/${x.id}_0.jpg" alt="Position de départ" onerror="this.parentNode.classList.add('ko')"><img class="b" src="img/ex/${x.id}_1.jpg" alt="Position d’arrivée" onerror="this.parentNode.classList.add('ko')"></div>`}
+
+// Ajouts rapides : g = portion proposée en grammes, p = valeurs pour 100 g
+const QUICK=[
+{id:'banane',n:'Banane',name:'Banane',g:120,p:{kcal:89,proteines:1.1,glucides:22.8,lipides:.3},note:'Une banane moyenne pèse environ 120 g sans la peau.'},
+{id:'fbavoine',n:'Fromage blanc + avoine',name:'Fromage blanc + flocons d’avoine',g:250,p:{kcal:134,proteines:8.6,glucides:15.2,lipides:3.8},note:'Base : 200 g de fromage blanc à 3 % et 50 g de flocons d’avoine.'},
+{id:'oeufs',n:'3 œufs',name:'Œufs',g:165,p:{kcal:145,proteines:12.5,glucides:.7,lipides:10},note:'Un œuf pèse environ 55 g : 165 g pour 3 œufs.'},
+{id:'thon',n:'Thon',name:'Thon au naturel',g:112,p:{kcal:116,proteines:26,glucides:0,lipides:1},note:'Une boîte de 160 g donne environ 112 g de thon égoutté.'},
+{id:'rizpoulet',n:'Riz + poulet',name:'Riz + poulet',g:350,p:{kcal:145,proteines:14.8,glucides:16,lipides:1.7},note:'Base : 200 g de riz cuit et 150 g de blanc de poulet.'}
+];
+
 // Utilitaires
 const $=s=>document.querySelector(s);
 const pad=n=>String(n).padStart(2,'0');
